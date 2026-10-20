@@ -1,4 +1,4 @@
-name: Build KnobDroid APK
+name: Build KnobDroid
 
 on:
   push:
@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Set up JDK 21
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         java-version: '21'
         distribution: 'temurin'
@@ -33,7 +33,7 @@ jobs:
       run: ./gradlew assembleRelease --stacktrace
 
     - name: Upload APK to Artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
-        name: KnobDroid-Custom-APK
+        name: knob-droid-release
         path: app/build/outputs/apk/release/*.apk

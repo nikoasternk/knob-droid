@@ -34,13 +34,13 @@ object VolumeActionHelper {
             return
         }
 
-        val volumePercent = requestedVolume ?: run {
-            val enabled = sharedPreferences.getBoolean(AppConstants.PreferenceKeys.VOLUME_ENABLED, AppConstants.PreferenceKeys.DEFAULT_VOLUME_ENABLED)
-            if (enabled) 100 else 0
-        }
+        val volumePercent = requestedVolume ?: sharedPreferences.getInt(
+            AppConstants.PreferenceKeys.VOLUME_PERCENT,
+            AppConstants.PreferenceKeys.DEFAULT_VOLUME_PERCENT
+        )
 
-        if (requestedVolume != null) {
-            sharedPreferences.edit { putBoolean(AppConstants.PreferenceKeys.VOLUME_ENABLED, volumePercent == 100) }
+        sharedPreferences.edit { 
+            putInt(AppConstants.PreferenceKeys.VOLUME_PERCENT, volumePercent) 
         }
 
         executor.execute {
@@ -50,20 +50,17 @@ object VolumeActionHelper {
             mainHandler.post {
                 when (result) {
                     is VolumeController.Result.Success -> {
-                        Log.d(TAG, "Connected to device and applied volume: ${result.deviceName}")
-                        showToast(appContext, appContext.getString(R.string.toast_volume_success))
+                        Log.d(TAG, "Applied volume: $volumePercent%")
+                        showToast(appContext, "Device volume set to $volumePercent%")
                     }
                     is VolumeController.Result.DeviceNotFound -> {
-                        Log.w(TAG, "Apple USB DAC not found")
-                        showToast(appContext, appContext.getString(R.string.toast_apple_dac_not_found))
+                        showToast(appContext, "Device not found")
                     }
                     is VolumeController.Result.Error -> {
-                        Log.e(TAG, "Error applying volume: ${result.message}")
-                        showToast(appContext, appContext.getString(R.string.toast_error_prefix, result.message))
+                        showToast(appContext, "Error: ${result.message}")
                     }
                     is VolumeController.Result.VolumeError -> {
-                        Log.e(TAG, "Volume error: ${result.code}")
-                        showToast(appContext, appContext.getString(R.string.toast_volume_error, result.code))
+                        showToast(appContext, "Error code: ${result.code}")
                     }
                 }
                 onComplete()
